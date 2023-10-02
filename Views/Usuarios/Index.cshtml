@@ -1,0 +1,151 @@
+﻿@model Proyecto_Venta_Productos_Lacteos.Models.ViewModels.UsuarioViewModel
+@using Proyecto_Venta_Productos_Lacteos.Models.CRUDs
+
+@{
+    CRUDRoles crudRoles = new CRUDRoles();
+    List<Rol> listaRoles = crudRoles.read();
+    crudRoles = null;
+
+    CRUDUsuarios crudUsuarios = new CRUDUsuarios();
+    List<Usuario> listaUsuarios = crudUsuarios.read();
+    crudUsuarios = null;
+
+    ViewData["Title"] = "Usuarios";
+}
+
+<h1 class="text-center">USUARIOS</h1>
+
+
+<div class="container-fluid m-md-3">
+    <form class="row my-2" method="post">
+        <div class="col-12 col-md-6 mt-2">
+            <label class="form-label">ID</label>
+            @if (Model != null)
+            {
+                <input type="number" required min="1" readonly="readonly" class="form-control" asp-for="cod_usuario">
+            }
+            else
+            {
+                <input type="number" required min="1" class="form-control" id="codigo_item" asp-for="cod_usuario">
+                <input type="checkbox" onchange="isAutoCode()" id="codigo_automatico" />
+                <label class="form-label">Automatico</label>
+            }
+            
+        </div>
+
+        <div class="col-12 col-md-6 mt-2">
+            <label class="form-label">Nombre</label>
+            <input type="text" required class="form-control" asp-for="nombre">
+        </div>
+
+        <div class="col-12 col-md-6 mt-2">
+            <label class="form-label">Usuario</label>
+            <input type="text" required class="form-control" asp-for="usuario">
+        </div>
+
+        <div class="col-12 col-md-6 mt-2">
+            <label class="form-label">Contraseña</label>
+            <input type="password" required class="form-control" asp-for="contrasena">
+        </div>
+
+        <div class="col-12 col-md-6 mt-2">
+            <label class="form-label">Rol</label>
+            <select class="form-select" required aria-label="Default select example" asp-for="cod_rol">
+                <option value="" selected>Seleccionar...</option>
+                @foreach (Rol rol in listaRoles)
+                {
+                        <option value=@rol.cod_rol.ToString()>@rol.nombre</option>
+                }
+            </select>
+        </div>
+
+        <div class="col-12 mt-3">
+
+            @if (Model != null)
+            {
+                <button class="btn btn-primary w-25" type="submit"
+                    asp-controller="Usuarios" asp-action="ActualizarUsuario">
+                    Actualizar Producto
+                </button>
+
+                <button class="btn btn-primary w-25" type="submit"
+                    asp-controller="Usuarios" asp-action="Index">
+                    Cancelar
+                </button>
+            }
+            else
+            {
+                <button class="btn btn-primary w-25" type="submit"
+                    asp-controller="Usuarios" asp-action="CrearUsuario">
+                    Ingresar Nuevo Usuario
+                </button>
+            }
+
+        </div>
+    </form>
+
+    <form method="post">
+        <div class="container">
+            <table class="table table-striped">
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Usuario</th>
+                    <th>Contrasena</th>
+                    <th>Rol</th>
+                </tr>
+
+                @if (listaUsuarios != null)
+                {
+                    foreach (Usuario usuario in listaUsuarios)
+                    {
+                        <tr>
+                            <td>@usuario.cod_usuario</td>
+                            <td>@usuario.nombre</td>
+                            <td>@usuario.usuario</td>
+                            <td>@usuario.contrasena</td>
+                            <td>@usuario.rol.nombre</td>
+                            <td>
+                                <button name="botonEliminar" class="btn bg-danger text-white" type="submit"
+                                asp-controller="Usuarios" asp-action="EliminarUsuario"
+                                value=@usuario.cod_usuario>
+                                    Eliminar
+                                </button>
+
+                                <button name="botonEditar" class="btn bg-primary text-white" type="submit"
+                                asp-controller="Usuarios" asp-action="EditarUsuario"
+                                value=@usuario.cod_usuario>
+                                    Editar
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                }
+
+            </table>
+        </div>
+    </form>
+    
+</div>
+
+@section Scripts{
+    <script>
+        const final_cod = @(listaUsuarios != null ? listaUsuarios[listaUsuarios.Count() - 1].cod_usuario + 1 : 0);
+
+        function isAutoCode() {
+            let chkCodAuto = $("#codigo_automatico").is(":checked");
+            let txtCodigoItem = document.getElementById("codigo_item");
+
+            txtCodigoItem.removeAttribute("readonly");
+
+            if (chkCodAuto && final_cod > 0) {
+
+                txtCodigoItem.setAttribute("readonly", "readonly");
+                txtCodigoItem.value = final_cod;
+            } else {
+                txtCodigoItem.value = "";
+            }
+        }
+
+    </script>
+}

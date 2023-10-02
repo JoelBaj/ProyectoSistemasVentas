@@ -1,0 +1,162 @@
+﻿@model Proyecto_Venta_Productos_Lacteos.Models.ViewModels.ClienteViewModel
+@using Proyecto_Venta_Productos_Lacteos.Models.CRUDs
+
+@{
+    CRUDClientes crudClientes = new CRUDClientes();
+    List<Cliente> lista_clientes = crudClientes.read();
+    crudClientes = null;
+
+    ViewData["Title"] = "Clientes";
+}
+
+<h1 class="text-center">CLIENTES</h1>
+
+<div class="container-fluid m-md-3">
+    <form class="row my-2" method="post">
+        <div class="col-12 col-md-6 mt-2">
+            <label class="form-label">ID Cliente</label>
+            
+            @if(Model != null)
+            {
+                <input type="number" required min="1" readonly="readonly" class="form-control" asp-for="cod_clientes">
+            }
+            else
+            {
+                <input type="number" required min="1" class="form-control" id="codigo_item" asp-for="cod_clientes">
+                <input type="checkbox" onchange="isAutoCode()" id="codigo_automatico" />
+                <label class="form-label">Automatico</label>
+            }
+
+            @Html.ValidationMessageFor(m => m.cod_clientes)
+       </div>
+
+        <div class="col-12 col-md-6 mt-2">
+            <label class="form-label">Nombres</label>
+            <input type="text" required maxlength="45" class="form-control" asp-for="nombre">
+            @Html.ValidationMessageFor(m => m.nombre)
+        </div>
+
+        <div class="col-12 col-md-6 mt-2">
+            <label class="form-label">Apellidos</label>
+            <input type="text" required maxlength="45" class="form-control" asp-for="apellido">
+            @Html.ValidationMessageFor(m => m.apellido)
+        </div>
+
+        <div class="col-12 col-md-6 mt-2">
+            <label class="form-label">CI</label>
+            <input type="text" required maxlength="10" class="form-control" asp-for="cedula">
+            @Html.ValidationMessageFor(m => m.cedula)
+        </div>
+
+        <div class="col-12 col-md-6 mt-2">
+            <label class="form-label">Correo</label>
+            <input type="text" required maxlength="30" class="form-control" asp-for="email">
+            @Html.ValidationMessageFor(m => m.email)
+        </div>
+
+        <div class="col-12 col-md-6 mt-2">
+            <label class="form-label">Telefono</label>
+            <input type="text" required maxlength="10" class="form-control" asp-for="telefono">
+            @Html.ValidationMessageFor(m => m.telefono)
+        </div>
+
+        <div class="col-12 col-md-6 mt-2">
+            <label class="form-label">Direccion</label>
+            <input type="text" required maxlength="100" class="form-control" asp-for="direccion">
+            @Html.ValidationMessageFor(m => m.direccion)
+        </div>
+
+        <div class="col-12 mt-3">
+
+            @if (Model != null)
+            {
+                <button class="btn btn-primary w-25" type="submit"
+                    asp-controller="Clientes" asp-action="ActualizarCliente">
+                    Actualizar Cliente
+                </button>
+
+                <button class="btn btn-primary w-25" type="submit"
+                    asp-controller="Clientes" asp-action="Index">
+                    Cancelar
+                </button>
+            }
+            else
+            {
+                <button class="btn btn-primary w-25" type="submit"
+                    asp-controller="Clientes" asp-action="CrearCliente">
+                    Ingresar Nuevo Cliente
+                </button>
+            }
+            
+        </div>
+    </form>
+
+    <form class="d-block my-3" method="post">
+        <div class="container">
+            <table class="table table-striped">
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Cedula</th>
+                    <th>Correo</th>
+                    <th>Telefono</th>
+                    <th>Dirección</th>
+                    <th>Acciones</th>
+                </tr>
+
+                @if (lista_clientes != null)
+                {
+                    foreach (Cliente cliente in lista_clientes)
+                    {
+                        <tr>
+                            <td>@cliente.cod_clientes</td>
+                            <td>@cliente.nombre</td>
+                            <td>@cliente.apellido</td>
+                            <td>@cliente.cedula</td>
+                            <td>@cliente.email</td>
+                            <td>@cliente.telefono</td>
+                            <td>@cliente.direccion</td>
+                            <td>
+                                <button name="botonEliminar" class="btn bg-danger text-white" type="submit"
+                                asp-controller="Clientes" asp-action="EliminarCliente"
+                                value=@cliente.cod_clientes>
+                                    Eliminar
+                                </button>
+
+                                <button name="botonEditar" class="btn bg-primary text-white" type="submit"
+                                asp-controller="Clientes" asp-action="EditarCliente"
+                                value=@cliente.cod_clientes>
+                                    Editar
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                }
+
+            </table>
+        </div>
+    </form>
+</div>
+
+@section Scripts{
+    <script>
+            const final_cod = @(lista_clientes != null && lista_clientes.Count() > 0 ? lista_clientes[lista_clientes.Count() - 1].cod_clientes + 1 : -1);
+
+        function isAutoCode() {
+            let chkCodAuto = $("#codigo_automatico").is(":checked");
+            let txtCodigoItem = document.getElementById("codigo_item");
+
+            txtCodigoItem.removeAttribute("readonly");
+
+            if (chkCodAuto && final_cod > 0) {
+
+                txtCodigoItem.setAttribute("readonly", "readonly");
+                txtCodigoItem.value = final_cod;
+            } else {
+                txtCodigoItem.value = "";
+            }
+        }
+
+    </script>
+}

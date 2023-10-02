@@ -1,0 +1,158 @@
+﻿@model Proyecto_Venta_Productos_Lacteos.Models.ViewModels.ProductoViewModel
+@using Proyecto_Venta_Productos_Lacteos.Models.CRUDs
+
+@{
+    CRUDProductos crudProductos = new CRUDProductos();
+    List<Producto> lista_productos = crudProductos.read();
+    crudProductos = null;
+
+    CRUDCategoriasProducto crudCatProductos = new CRUDCategoriasProducto();
+    List<CategoriaProducto> lista_categorias = crudCatProductos.read();
+    crudCatProductos = null;
+
+    ViewData["Title"] = "Productos";
+}
+
+<h1 class="text-center">PRODUCTOS</h1>
+
+
+<div class="container-fluid m-md-3">
+    <form class="row my-2" method="post">
+        <div class="col-12 col-md-6 mt-2">
+            <label class="form-label">ID Producto</label>
+            
+            @if(Model != null)
+            {
+                <input type="number" required min="1" readonly="readonly" class="form-control" asp-for="cod_producto">
+            }
+            else
+            {
+                <input type="number" required min="1" class="form-control" id="codigo_item" asp-for="cod_producto">
+                <input type="checkbox" onchange="isAutoCode()" id="codigo_automatico" />
+                <label class="form-label">Automatico</label>
+            }
+            
+            @Html.ValidationMessageFor(m => m.cod_producto)
+        </div>
+
+        <div class="col-12 col-md-6 mt-2">
+            <label class="form-label">Nombre</label>
+            <input type="text" required maxlength="45" class="form-control" asp-for="nombre">
+            @Html.ValidationMessageFor(m => m.nombre)
+        </div>
+
+        <div class="col-12 col-md-6 mt-2">
+            <label class="form-label">Stock</label>
+            <input type="number" required class="form-control" asp-for="stock">
+            @Html.ValidationMessageFor(m => m.stock)
+        </div>
+
+        <div class="col-12 col-md-6 mt-2">
+            <label class="form-label">Precio Unitario</label>
+            <input type="number" step="0.01" min="0.01" required class="form-control" asp-for="precio_unitario">
+            @Html.ValidationMessageFor(m => m.precio_unitario)
+        </div>
+
+        <div class="col-12 col-md-6 mt-2">
+            <label class="form-label">Categoria</label>
+            <select class="form-select" required aria-label="Default select example" asp-for="cod_categoria">
+                <option value="" selected>Seleccionar...</option>
+                @foreach (CategoriaProducto categoria in lista_categorias)
+                {
+                    <option value=@categoria.cod_categoria>@categoria.nombre</option>
+                }
+            </select>
+            @Html.ValidationMessageFor(m => m.cod_categoria)
+        </div>
+
+        <div class="col-12 mt-3">
+
+            @if (Model != null)
+            {
+                <button class="btn btn-primary w-25" type="submit"
+                    asp-controller="Productos" asp-action="ActualizarProducto">
+                    Actualizar Producto
+                </button>
+
+                <button class="btn btn-primary w-25" type="submit"
+                    asp-controller="Productos" asp-action="Index">
+                    Cancelar
+                </button>
+            }
+            else
+            {
+                <button class="btn btn-primary w-25" type="submit"
+                    asp-controller="Productos" asp-action="CrearProducto">
+                    Ingresar Nuevo Producto
+                </button>
+            }
+        </div>
+    </form>
+
+    <form class="my-3" method="post">
+        <div class="container">
+            <table class="table table-striped">
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Categoria</th>
+                    <th>Cantidad</th>
+                    <th>Precio</th>
+                    <th>Acciones</th>
+                </tr>
+
+                @if (lista_productos != null)
+                {
+                    foreach (Producto producto in lista_productos)
+                    {
+                        <tr>
+                            <td>@producto.cod_producto</td>
+                            <td>@producto.nombre</td>
+                            <td>@producto.categoria.nombre</td>
+                            <td>@producto.stock</td>
+                            <td>@producto.precio_unitario</td>
+                            <td>
+                                <button name="botonEliminar" class="btn bg-danger text-white" type="submit"
+                                asp-controller="Productos" asp-action="EliminarProducto"
+                                value=@producto.cod_producto>
+                                    Eliminar
+                                </button>
+
+                                <button name="botonEditar" class="btn bg-primary text-white" type="submit"
+                                asp-controller="Productos" asp-action="EditarProducto"
+                                value=@producto.cod_producto>
+                                    Editar
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                }
+
+            </table>
+        </div>
+    </form>
+</div>
+
+@section Scripts{
+    <script>
+        const final_cod = @(lista_productos != null ? lista_productos[lista_productos.Count() - 1].cod_producto + 1 : 0);
+
+        isAutoCode();
+
+        function isAutoCode() {
+            let chkCodAuto = $("#codigo_automatico").is(":checked");
+            let txtCodigoItem = document.getElementById("codigo_item");
+
+            txtCodigoItem.removeAttribute("readonly");
+
+            if (chkCodAuto && final_cod > 0) {
+
+                txtCodigoItem.setAttribute("readonly", "readonly");
+                txtCodigoItem.value = final_cod;
+            } else {
+                txtCodigoItem.value = "";
+            }
+        }
+
+    </script>
+}

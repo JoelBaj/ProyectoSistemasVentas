@@ -1,0 +1,41 @@
+﻿@using Proyecto_Venta_Productos_Lacteos.Models.CRUDs
+
+@{
+    CRUDProductos crudProductos = new CRUDProductos();
+    List<Producto> nueva_lista = crudProductos.read();
+    crudProductos = null;
+
+    ViewData["Title"] = "Home";
+}
+
+<h1 class="text-center">SISTEMA DE VENTAS DE PRODUCTOS LACTEOS</h1>
+
+<div class="row m-2">
+    <div class="col-12 col-md-6 my-2">
+        <a class="btn bg-primary w-100 h-100 text-white text-center" role="button" asp-controller="Productos" asp-action="Index">
+            <p class="d-block my-1">PRODUCTOS</p>
+            <i class="bi bi-basket" style="font-size: 75px;"></i>
+        </a>
+    </div>
+
+    <div class="col-12 col-md-6 my-2">
+        <a class="btn bg-primary w-100 h-100 text-white text-center" role="button" asp-controller="Clientes" asp-action="Index">
+            <p class="d-block my-1">CLIENTES</p>
+            <i class="bi bi-people-fill" style="font-size: 75px;"></i>
+        </a>
+    </div>
+
+    <div class="col-12 col-md-6 my-2">
+        <a class="btn bg-primary w-100 h-100 text-white text-center" role="button" asp-controller="Usuarios" asp-action="Index">
+            <p class="d-block my-1">USUARIOS</p>
+            <i class="bi bi-person-vcard" style="font-size: 75px;"></i>
+        </a>
+    </div>
+
+    <div class="col-12 col-md-6 my-2">
+        <a class="btn bg-primary w-100 h-100 text-white text-center" role="button" asp-controller="Ventas" asp-action="Index">
+            <p class="d-block my-1">VENTAS</p>
+            <i class="bi bi-bag" style="font-size: 75px;"></i>
+        </a>
+    </div>
+</div>

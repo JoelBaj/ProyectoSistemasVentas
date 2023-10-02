@@ -1,0 +1,327 @@
+﻿@model Proyecto_Venta_Productos_Lacteos.Models.ViewModels.VentaViewModel
+@using Proyecto_Venta_Productos_Lacteos.Models.ViewModels
+@using Proyecto_Venta_Productos_Lacteos.Models.CRUDs
+
+@{
+    CRUDVentas crudVentas = new CRUDVentas();
+    List<Venta> lista_ventas = crudVentas.read();
+    crudVentas = null;
+
+    CRUDClientes crudClientes = new CRUDClientes();
+    List<Cliente> lista_clientes = crudClientes.read();
+    crudClientes = null;
+
+    CRUDProductos crudProductos = new CRUDProductos();
+    List<Producto> lista_productos = crudProductos.read();
+    crudProductos = null;
+
+    ViewData["Title"] = "Ventas";
+}
+
+<h1 class="text-center">VENTAS</h1>
+
+<div class="container-fluid m-md-3">
+    <form class="row my-2" method="post">
+        <div class="col-12 col-md-6 mt-2">
+            <label class="form-label">ID</label>
+
+            @if(Model != null)
+            {
+                <input type="number" readonly="readonly" class="form-control" asp-for="cod_venta">
+            }
+            else
+            {
+                <input type="number" required min="1" class="form-control" id="codigo_item" asp-for="cod_venta">
+                <input type="checkbox" onchange="isAutoCode()" id="codigo_automatico"/>
+                <label class="form-label">Automatico</label>
+            }
+
+            
+        </div>
+
+        <div class="col-12 mt-2">
+            <h2>Producto</h2>
+            <div class="row">
+                <div class="col-12 col-md-6 mt-2">
+                    <label class="form-label">Producto</label>
+
+                    <select class="form-select" required aria-label="Default select example" id="select_producto" onchange="SeleccionarProducto()" asp-for="cod_producto">
+                        <option value="" selected>Seleccionar...</option>
+
+                        @if (lista_productos != null)
+                        {
+                            foreach (Producto producto in lista_productos)
+                            {
+                                <option value=@producto.cod_producto>@(producto.nombre + " $" + producto.precio_unitario)</option>
+                            }
+                        }
+                     </select>
+
+                </div>
+
+                <div class="col-12 col-md-6 mt-2">
+                    <label class="form-label">Nombre</label>
+                    <input type="text" readonly="readonly" id="nombre_producto" class="form-control">
+                </div>
+
+                <div class="col-12 col-md-6 mt-2">
+                    <label class="form-label">Stock</label>
+                    <input type="number" readonly="readonly" id="stock_producto" class="form-control" hidden >
+                </div>
+
+                <div class="col-12 col-md-6 mt-2">
+                    <label class="form-label">Precio Unitario</label>
+                    <input type="number" step="0.01" readonly="readonly" id="precio_unitario" class="form-control">
+                </div>
+
+                <div class="col-12 col-md-6 mt-2">
+                    <label class="form-label">Categoria</label>
+                    <input type="text" readonly="readonly" id="categoria_producto" class="form-control">
+                </div>
+                
+            </div>
+        </div>
+
+        <div class="col-12 mt-2">
+            <h2>Cliente</h2>
+            <div class="row">
+                <div class="col-12 col-md-6 mt-2">
+                    <label class="form-label">Cliente</label>
+                    <select class="form-select" required aria-label="Default select example" id="select_cliente" onchange="SeleccionarCliente()" asp-for="cod_cliente">
+                        <option value="" selected>Seleccionar...</option>
+
+                        @if (lista_clientes != null)
+                        {
+                            foreach (Cliente cliente in lista_clientes)
+                            {
+                                <option value=@cliente.cod_clientes>@(cliente.cedula + " - " + cliente.nombre + " " + cliente.apellido)</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-6 mt-2">
+                    <label class="form-label">Nombres</label>
+                    <input type="text" readonly="readonly" id="nombre_cliente" class="form-control">
+                </div>
+
+                <div class="col-12 col-md-6 mt-2">
+                    <label class="form-label">Apellidos</label>
+                    <input type="text" readonly="readonly" id="apellido_cliente" class="form-control">
+                </div>
+
+                <div class="col-12 col-md-6 mt-2">
+                    <label class="form-label">CI</label>
+                    <input type="text" readonly="readonly" id="cedula_cliente" class="form-control">
+                </div>
+
+                <div class="col-12 col-md-6 mt-2">
+                    <label class="form-label">Correo</label>
+                    <input type="text" readonly="readonly" id="email_cliente" class="form-control">
+                </div>
+
+                <div class="col-12 col-md-6 mt-2">
+                    <label class="form-label">Telefono</label>
+                    <input type="text" readonly="readonly" id="telefono_cliente" class="form-control">
+                </div>
+
+                <div class="col-12 col-md-6 mt-2">
+                    <label class="form-label">Direccion</label>
+                    <input type="text" readonly="readonly" id="direccion_cliente" class="form-control">
+                </div>
+                
+            </div>
+        </div>
+        
+        <div class="col-12 col-md-6 mt-2">
+            <label class="form-label">Cantidad</label>
+            <input type="number" required min="1" value="1" class="form-control" onchange="GenerarTotal()" id="cantidad_venta" asp-for="cantidad">
+        </div>
+
+        <div class="col-12 col-md-6 mt-2">
+            <label class="form-label">Fecha</label>
+            <input type="date" required class="form-control" asp-for="fecha">
+        </div>
+
+        <div class="col-12 col-md-6 mt-2">
+            <label class="form-label">Forma de Pago</label>
+            <select class="form-select" required aria-label="Default select example" asp-for="forma_pago">
+                <option value="" selected>Seleccionar...</option>
+                <option value="Efectivo">Efectivo</option>
+                <option value="Debito">Debito</option>
+                <option value="Credito">Credito</option>
+            </select>
+        </div>
+        
+        <div class="col-12 col-md-6 mt-2">
+            <label class="form-label">Total</label>
+            <input type="number" required step="0.01" readonly="readonly" class="form-control" id="total_venta" asp-for="total">
+        </div>
+
+        <div class="col-12 mt-3">
+
+            @if (Model != null)
+            {
+                <button class="btn btn-primary w-25" type="submit"
+                    asp-controller="Ventas" asp-action="ActualizarVenta">
+                    Actualizar Venta
+                </button>
+
+                <button class="btn btn-primary w-25" type="submit"
+                    asp-controller="Ventas" asp-action="Index">
+                    Cancelar
+                </button>
+            }
+            else
+            {
+                <button class="btn btn-primary w-25" type="submit"
+                    asp-controller="Ventas" asp-action="CrearVenta">
+                    Crear Venta
+                </button>
+            }
+        </div>
+
+    </form>
+
+    <form class="my-3" method="post">
+        <div class="container">
+            <table class="table table-striped">
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre del Cliente</th>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Fecha</th>
+                    <th>Precio Unitario</th>
+                    <th>Total</th>
+                    <th>Acciones</th>
+                </tr>
+
+                @if (lista_ventas != null)
+                {
+                    foreach (Venta venta in lista_ventas)
+                    {
+                        <tr>
+                            <td>@venta.cod_venta</td>
+                            <td>@(venta.cliente.nombre + " " + venta.cliente.apellido) </td>
+                            <td>@venta.producto.nombre</td>
+                            <td>@venta.cantidad</td>
+                            <td>@venta.fecha</td>
+                            <td>@venta.producto.precio_unitario</td>
+                            <td>@venta.total</td>
+                            <td>
+                                <button name="botonEliminar" class="btn bg-danger text-white" type="submit"
+                                asp-controller="Ventas" asp-action="EliminarVenta"
+                                value=@venta.cod_venta>
+                                    Eliminar
+                                </button>
+
+                                <button name="botonEditar" class="btn bg-primary text-white" type="submit"
+                                asp-controller="Ventas" asp-action="EditarVenta"
+                                value=@venta.cod_venta>
+                                    Editar
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                }
+
+            </table>
+        </div>
+    </form>
+</div>
+
+@section Scripts{
+    <script>
+        const final_cod = @(lista_ventas != null ? lista_ventas[lista_ventas.Count() - 1].cod_venta + 1 : 0);
+        const txtCantidad = document.getElementById("cantidad_venta");
+        const txtTotal = document.getElementById("total_venta");
+
+        let lista_productos = @Html.Raw(Json.Serialize(lista_productos));
+        let lista_clientes = @Html.Raw(Json.Serialize(lista_clientes));
+
+        //DATOS DE PRODUCTO
+        const cbxProducto = document.getElementById("select_producto");
+        const txtNombreProducto = document.getElementById("nombre_producto");
+        const txtStockProducto = document.getElementById("stock_producto");
+        const txtPrecioUnitario = document.getElementById("precio_unitario");
+        const txtCategoriaProducto = document.getElementById("categoria_producto");
+
+        //DATOS DEL CLIENTE
+        const cbxCliente = document.getElementById("select_cliente");
+        const txtNombreCliente = document.getElementById("nombre_cliente");
+        const txtApellidoCliente = document.getElementById("apellido_cliente");
+        const txtCedulaCliente = document.getElementById("cedula_cliente");
+        const txtEmailCliente = document.getElementById("email_cliente");
+        const txtTelefonoCliente = document.getElementById("telefono_cliente");
+        const txtDireccionCliente = document.getElementById("direccion_cliente");
+
+        SeleccionarProducto();
+        SeleccionarCliente();
+        GenerarTotal();
+        isAutoCode();
+
+        function SeleccionarProducto(){
+
+            txtCantidad.removeAttribute("readonly");
+
+            if (cbxProducto.value != ""){
+                txtNombreProducto.value = lista_productos[cbxProducto.value - 1]["nombre"];
+                txtStockProducto.value = lista_productos[cbxProducto.value - 1]["stock"];
+                txtPrecioUnitario.value = lista_productos[cbxProducto.value - 1]["precio_unitario"];
+                txtCategoriaProducto.value = lista_productos[cbxProducto.value - 1]["categoria"]["nombre"];
+
+                GenerarTotal();
+
+            }else{
+                txtCantidad.setAttribute("readonly", "readonly");
+
+                txtNombreProducto.value = "";
+                txtStockProducto.value = "";
+                txtPrecioUnitario.value = "";
+                txtCategoriaProducto.value = "";
+            }
+        }
+
+        function SeleccionarCliente() {
+            if (cbxCliente.value != "") {
+                txtNombreCliente.value = lista_clientes[cbxCliente.value - 1]["nombre"];
+                txtApellidoCliente.value = lista_clientes[cbxCliente.value - 1]["apellido"];
+                txtCedulaCliente.value = lista_clientes[cbxCliente.value - 1]["cedula"];
+                txtEmailCliente.value = lista_clientes[cbxCliente.value - 1]["email"];
+                txtTelefonoCliente.value = lista_clientes[cbxCliente.value - 1]["telefono"];
+                txtDireccionCliente.value = lista_clientes[cbxCliente.value - 1]["direccion"];
+            }else{
+                txtNombreCliente.value = "";
+                txtApellidoCliente.value = "";
+                txtCedulaCliente.value = "";
+                txtEmailCliente.value = "";
+                txtTelefonoCliente.value = "";
+                txtDireccionCliente.value = "";
+            }
+        }
+        
+        function GenerarTotal() {
+            let cantidad = parseFloat(txtCantidad.value);
+            let precio = parseFloat(txtPrecioUnitario.value);
+
+            txtTotal.value = cantidad * precio;
+        }
+
+        function isAutoCode() {
+            let chkCodAuto = $("#codigo_automatico").is(":checked");
+            let txtCodigoItem = document.getElementById("codigo_item");
+
+            txtCodigoItem.removeAttribute("readonly");
+
+            if (chkCodAuto && final_cod > 0) {
+
+                txtCodigoItem.setAttribute("readonly", "readonly");
+                txtCodigoItem.value = final_cod;
+            }else{
+                txtCodigoItem.value = "";
+            }
+        }
+
+    </script>
+}
